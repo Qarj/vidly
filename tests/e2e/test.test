@@ -1,0 +1,386 @@
+#ToDo: Joi validations (empty name)
+
+step:               Set variables - 1
+section:            Setup - set vars and fail safe data clean-up
+varKEY:             {RANDOM:4}
+
+step:               Set variables - 2
+varBASE:            http://localhost:3000
+varADMIN_USER:      mosh_{KEY}@example.com
+varSTD_USER:        standard_{KEY}@example.com
+
+#
+# User registration
+#
+
+step:               Post an invalid new user request - name too short
+section:            User registration
+url:                {BASE}/api/users
+postbody:|:         |{
+    "name": "Mosh",
+    "email": "1"
+}|
+posttype:           application/json
+verifyresponsecode: 400
+verifypositive:     "name" length must be at least 5 characters long
+
+step:               Post an invalid new user request - email invalid
+url:                {BASE}/api/users
+postbody:           { "name": "Mosh Hamedani", "email": "supaATdoopa", "password": "Bingo" }
+posttype:           application/json
+verifyresponsecode: 400
+verifypositive:     "email" must be a valid email
+
+step:               Post an invalid new user request - password missing
+url:                {BASE}/api/users
+postbody:|:         |{
+    "name": "Mosh Hamedani",
+    "email": "supa@doopa.com"
+}|
+posttype:           application/json
+verifyresponsecode: 400
+verifypositive:     "password" is required
+
+step:                       Post a valid admin user - {ADMIN_USER}
+url:                        {BASE}/api/users
+postbody:|:                 |{
+    "name": "Mosh Hamedani",
+    "email": "{ADMIN_USER}",
+    "password": "12345",
+    "isAdmin": "true"
+}|
+posttype:                   application/json
+parseresponseSTD_ID:        "_id":"([^"]+)
+parseresponseADMIN_TOKEN:   X-Auth-Token: ([\w\.\-]+)
+verifypositive1:            _id
+verifypositive2:            X-Auth-Token: [\w\.\-]+
+
+step:               Post a duplicate user - {ADMIN_USER}
+url:                {BASE}/api/users
+postbody:|:         |{
+    "name": "Mosh Hamedani",
+    "email": "{ADMIN_USER}",
+    "password": "12345"
+}|
+posttype:           application/json
+verifyresponsecode: 400
+verifypositive:     User already registered
+
+step:               See user info
+url:                {BASE}/api/users/me
+addheader:          X-Auth-Token: {ADMIN_TOKEN}
+verifypositive:     Mosh Hamedani
+
+step:                   Post a valid standard user - {ADMIN_USER}
+url:                    {BASE}/api/users
+postbody:|:             |{
+    "name": "Standard User",
+    "email": "{STD_USER}",
+    "password": "12345"
+}|
+posttype:               application/json
+parseresponseSTD_ID:    "_id":"([^"]+)
+parseresponseSTD_TOKEN: X-Auth-Token: ([\w\.\-]+)
+verifypositive1:        _id
+verifypositive2:        X-Auth-Token: [\w\.\-]+
+
+
+#
+#    Genres
+#
+
+# Fail safe
+
+step:               Fail safe - remove any existing Very Funny genre
+url:                {BASE}/api/genres
+parseresponseBAD_ID: "_id":"([^"]+)","name":"[^"]*Funny"
+
+step:               Delete a bad genre if it exists
+url:                {BASE}/api/genres/{BAD_ID}
+method:             delete
+addheader:          X-Auth-Token: {ADMIN_TOKEN}
+ignorehttpresponsecode: 404
+verifynegative:     Insufficient rights
+runif:              {BAD_ID}
+
+
+step:               Fail safe - remove any existing Silly genre
+url:                {BASE}/api/genres
+parseresponseBAD_ID: "_id":"([^"]+)","name":"[^"]*Silly"
+
+step:               Delete a bad genre if it exists
+url:                {BASE}/api/genres/{BAD_ID}
+method:             delete
+addheader:          X-Auth-Token: {ADMIN_TOKEN}
+ignorehttpresponsecode: 404
+verifynegative:     Insufficient rights
+runif:              {BAD_ID}
+
+
+# Add
+
+step:               Add a new Genre - Funny
+section:            Path - POST a new Genre
+url:                {BASE}/api/genres
+postbody:           { "name": "Funny" }
+posttype:           application/json
+addheader:          X-Auth-Token: {ADMIN_TOKEN}
+parseresponseFUN_ID: "_id":"([^"]+)
+
+step:               Add a new Genre - Silly
+url:                {BASE}/api/genres
+postbody:           { "name": "Silly" }
+posttype:           application/json
+addheader:          X-Auth-Token: {ADMIN_TOKEN}
+parseresponseSIL_ID: "_id":"([^"]+)
+
+step:               Check new genres added
+url:                {BASE}/api/genres
+verifypositive1:    Funny
+verifypositive2:    Silly
+
+
+# Get all
+
+step:               Get all Genres
+section:            Path - GET all Genres
+url:                {BASE}/api/genres
+verifypositive:     Silly
+parseresponseID:    "_id":"([^"]+)
+
+
+# Get one
+
+step:               Get one Genre
+section:            Path - GET one Genre
+url:                {BASE}/api/genres/{ID}
+verifypositive:     "name"
+
+step:               Get a non existing Genre
+url:                {BASE}/api/genres/5a92cbbff220553c082f9e46
+verifypositive:     The genre with the given ID was not found
+verifyresponsecode: 404
+
+
+# Update
+
+step:               Update a Genre
+desc:               With _id {FUN_ID}
+section:            Path - PUT an existing Genre
+url:                {BASE}/api/genres/{FUN_ID}
+postbody:           { "name": "Very Funny" }
+posttype:           application/json
+method:             put
+addheader:          X-Auth-Token: {ADMIN_TOKEN}
+verifypositive:     Very Funny
+
+step:               Check Genre updated to Very Funny
+url:                {BASE}/api/genres
+verifypositive:     Very Funny
+
+step:               Update a non existing Genre
+url:                {BASE}/api/genres/5a92cbbff220553c082f9e46
+postbody:           { "name": "Very Funny" }
+posttype:           application/json
+method:             put
+addheader:          X-Auth-Token: {ADMIN_TOKEN}
+verifypositive:     The genre with the given ID was not found
+verifyresponsecode: 404
+
+
+# Delete
+
+step:               Delete a Genre - Fun
+section:            Path - DELETE a Genre
+url:                {BASE}/api/genres/{FUN_ID}
+method:             delete
+addheader:          X-Auth-Token: {ADMIN_TOKEN}
+verifypositive:     Very Funny
+
+step:               Attempt to delete a Genre as a standard user
+url:                {BASE}/api/genres/{SIL_ID}
+method:             delete
+addheader:          X-Auth-Token: {STD_TOKEN}
+verifyresponsecode: 403
+verifypositive:     Insufficient rights
+
+step:               Delete a Genre - Silly
+url:                {BASE}/api/genres/{SIL_ID}
+method:             delete
+addheader:          X-Auth-Token: {ADMIN_TOKEN}
+verifypositive:     Silly
+
+step:               Delete a non existing Genre
+url:                {BASE}/api/genres/5a92cbbff220553c082f9e46
+method:             delete
+addheader:          X-Auth-Token: {ADMIN_TOKEN}
+verifypositive:     The genre with the given ID was not found
+verifyresponsecode: 404
+
+step:               Check Very Funny and Silly genres no longer exists
+url:                {BASE}/api/genres
+verifynegative1:    Very Funny
+verifynegative2:    Silly
+
+
+
+#
+#    Customers
+#
+
+# Fail safe
+
+step:               Fail safe - remove any existing Slartibartfast customer
+url:                {BASE}/api/customers
+parseresponseBAD_ID: "_id":"([^"]+)","name":"[^"]*Slartibartfast"
+
+step:               Delete a bad customer if it exists
+url:                {BASE}/api/customers/{BAD_ID}
+method:             delete
+ignorehttpresponsecode: 404
+runif:              {BAD_ID}
+
+step:               Fail safe - remove any existing Zaphod customer
+url:                {BASE}/api/customers
+parseresponseBAD_ID: "_id":"([^"]+)","name":"[^"]*Zaphod"
+
+step:               Delete a bad customer if it exists
+url:                {BASE}/api/customers/{BAD_ID}
+method:             delete
+ignorehttpresponsecode: 404
+runif:              {BAD_ID}
+
+
+# Add
+
+step:               Add a new Customer - Slartibartfast
+section:            Path - POST a new Customer
+url:                {BASE}/api/customers
+postbody:           { "isGold": "true", "name": "Slartibartfast", "phone": "555888" }
+posttype:           application/json
+parseresponseS_ID: "_id":"([^"]+)
+
+step:               Add a new Customer - Zaphod
+url:                {BASE}/api/customers
+postbody:           { "isGold": "false", "name": "Zaphod", "phone": "333 222" }
+posttype:           application/json
+parseresponseZ_ID: "_id":"([^"]+)
+
+step:               Check new customers added
+url:                {BASE}/api/customers
+verifypositive1:    Slartibartfast
+verifypositive2:    Zaphod
+
+
+# Get all
+
+step:               Get all Customers
+section:            Path - GET all Customers
+url:                {BASE}/api/customers
+verifypositive1:    Slartibartfast
+verifypositive2:    Zaphod
+parseresponseID:    "_id":"([^"]+)
+
+
+# Get one
+
+step:               Get one Customer
+section:            Path - GET one Customer
+url:                {BASE}/api/customers/{ID}
+verifypositive:     "name"
+
+step:               Get a non existing Customer
+url:                {BASE}/api/customers/5a92cbbff220553c082f9e46
+verifypositive:     The customer with the given ID was not found
+verifyresponsecode: 404
+
+
+# Update
+
+step:               Update a Customer
+desc:               With _id {S_ID}
+section:            Path - PUT an existing Customer
+url:                {BASE}/api/customers/{S_ID}
+postbody:           { "isGold": "false", "name": "Very Slartibartfast", "phone": "1234566" }
+posttype:           application/json
+method:             put
+
+step:               Check Customer updated to Very Slartibartfast
+url:                {BASE}/api/customers
+verifypositive:     Very Slartibartfast
+
+step:               Update a non existing Customer
+url:                {BASE}/api/customers/5a92cbbff220553c082f9e46
+postbody:           { "name": "Very Slartibartfast", "phone": "12345" }
+posttype:           application/json
+method:             put
+verifypositive:     The customer with the given ID was not found
+verifyresponsecode: 404
+
+
+# Delete
+
+step:               Delete a Customer
+section:            Path - DELETE a Customer
+url:                {BASE}/api/customers/{S_ID}
+method:             delete
+
+step:               Delete a Customer - Zaphod
+url:                {BASE}/api/customers/{Z_ID}
+method:             delete
+
+step:               Delete a non existing Customer
+url:                {BASE}/api/customers/5a92cbbff220553c082f9e46
+method:             delete
+verifypositive:     The customer with the given ID was not found
+verifyresponsecode: 404
+
+step:               Check Very Slartibartfast and Zaphod customers no longer exists
+url:                {BASE}/api/customers
+verifynegative1:    Very Slartibartfast
+verifynegative2:    Zaphod
+
+
+#
+# Authentication
+#
+
+step:               Dump cookies
+section:            Authentication
+restartbrowser:     true
+
+step:               Add a new Genre while unauthenticated
+url:                {BASE}/api/genres
+postbody:           { "name": "You have been denied" }
+posttype:           application/json
+verifyresponsecode: 401
+verifypositive:     Access denied\. No token provided\.
+
+step:               Post a valid login - {ADMIN_USER}
+url:                {BASE}/api/auth
+postbody:|:         |{
+    "email": "{ADMIN_USER}",
+    "password": "12345"
+}|
+posttype:           application/json
+verifypositive:     \w+\.\w+\.\w+
+
+step:               Post invalid login password - {ADMIN_USER}
+url:                {BASE}/api/auth
+postbody:|:         |{
+    "email": "{ADMIN_USER}",
+    "password": "123456"
+}|
+posttype:           application/json
+verifyresponsecode: 400
+verifypositive:     Invalid email or password
+
+step:               Post invalid login email - paul@example.com
+url:                {BASE}/api/auth
+postbody:|:         |{
+    "email": "paul@example.com",
+    "password": "12345"
+}|
+posttype:           application/json
+verifyresponsecode: 400
+verifypositive:     Invalid email or password
