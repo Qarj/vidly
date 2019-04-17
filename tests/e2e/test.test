@@ -4,10 +4,13 @@ step:               Set variables - 1
 section:            Setup - set vars and fail safe data clean-up
 varKEY:             {RANDOM:4}
 
+# varBASE:            http://localhost:3000
+
 step:               Set variables - 2
-varBASE:            http://localhost:3000
+varBASE:            https://dry-reaches-67963.herokuapp.com
 varADMIN_USER:      mosh_{KEY}@example.com
 varSTD_USER:        standard_{KEY}@example.com
+
 
 #
 # User registration
