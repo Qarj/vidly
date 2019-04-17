@@ -25,3 +25,55 @@ Login
 ```
 heroku login
 ```
+
+Create a local git repository, add a `.gitignore`, then commit locally.
+
+.gitignore
+```
+node_modules/
+coverage/
+*.log
+```
+
+```
+cd /git/vidly
+git init
+git add .
+git commit -m "First commit."
+```
+
+Create in Heroku, optionally add a unique name
+```
+heroku create
+```
+
+```
+Creating app... done, ⬢ dry-reaches-67963
+https://dry-reaches-67963.herokuapp.com/ | https://git.heroku.com/dry-reaches-67963.git
+```
+
+`git remote -v`
+```
+heroku  https://git.heroku.com/dry-reaches-67963.git (fetch)
+heroku  https://git.heroku.com/dry-reaches-67963.git (push)
+```
+
+Deploy
+```
+git push heroku master
+```
+
+Set Environment variables
+```
+heroku config:set vidly_jwtPrivateKey=12345
+heroku config:set NODE_ENV=production
+heroku config:set vidly_db=DB_CONNECTION_STRING
+heroku config
+```
+
+
+## Debug Deployment
+
+```
+heroku logs
+```
