@@ -71,9 +71,15 @@ heroku config:set vidly_db=DB_CONNECTION_STRING
 heroku config
 ```
 
-
 ## Debug Deployment
 
 ```
 heroku logs
+```
+
+## Put on GitHub also
+
+```
+git remote add github https://github.com/Qarj/vidly.git
+git push github master
 ```
