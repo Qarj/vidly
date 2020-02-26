@@ -2,7 +2,7 @@
 
 ```
 npm install
-set vidly_jwtPrivateKey=mySecureKey
+export vidly_jwtPrivateKey=mySecureKey
 node index.js
 ```
 
@@ -17,11 +17,13 @@ wif.pl test.test
 ## Deployment
 
 Install heroku cli
+
 ```
 https://devcenter.heroku.com/articles/heroku-cli
 ```
 
 Login
+
 ```
 heroku login
 ```
@@ -29,6 +31,7 @@ heroku login
 Create a local git repository, add a `.gitignore`, then commit locally.
 
 .gitignore
+
 ```
 node_modules/
 coverage/
@@ -43,6 +46,7 @@ git commit -m "First commit."
 ```
 
 Create in Heroku, optionally add a unique name
+
 ```
 heroku create
 ```
@@ -53,17 +57,20 @@ https://dry-reaches-67963.herokuapp.com/ | https://git.heroku.com/dry-reaches-67
 ```
 
 `git remote -v`
+
 ```
 heroku  https://git.heroku.com/dry-reaches-67963.git (fetch)
 heroku  https://git.heroku.com/dry-reaches-67963.git (push)
 ```
 
 Deploy
+
 ```
 git push heroku master
 ```
 
 Set Environment variables
+
 ```
 heroku config:set vidly_jwtPrivateKey=12345
 heroku config:set NODE_ENV=production
