@@ -1,0 +1,82 @@
+step:                       Set environment variables
+varBASE:                    https://dry-reaches-67963.herokuapp.com
+
+step:                       Set authentication details
+varUSER_NAME:               admin@domain.com
+varPASS:                    12345
+
+step:                       Post a valid login - {USER_NAME}
+url:                        {BASE}/api/auth
+postbody:|:                 |{
+    "email": "{USER_NAME}",
+    "password": "{PASS}"
+}|
+posttype:                   application/json
+verifypositive:             \w+\.\w+\.\w+
+parseresponseUSER_TOKEN:    X-Powered-By: Express\s*([\w\.\-]+)
+
+step:                       See user info
+url:                        {BASE}/api/users/me
+addheader:                  X-Auth-Token: {USER_TOKEN}
+verifypositive:             Administrator
+
+#
+# Add the genres
+#
+
+step:                       Info - add the genres
+section:                    Add Genres
+
+step:                       Add genre - {GENRE}
+varGENRE:                   Comedy
+section:                    Path - POST genre
+url:                        {BASE}/api/genres
+postbody:                   { "name": "{GENRE}" }
+posttype:                   application/json
+addheader:                  X-Auth-Token: {USER_TOKEN}
+parseresponseFUN_ID:        "_id":"([^"]+)
+
+step:                       Add genre - {GENRE}
+varGENRE:                   Thriller
+section:                    Path - POST genre
+url:                        {BASE}/api/genres
+postbody:                   { "name": "{GENRE}" }
+posttype:                   application/json
+addheader:                  X-Auth-Token: {USER_TOKEN}
+parseresponseFUN_ID:        "_id":"([^"]+)
+
+step:                       Add genre - {GENRE}
+varGENRE:                   Adventure
+section:                    Path - POST genre
+url:                        {BASE}/api/genres
+postbody:                   { "name": "{GENRE}" }
+posttype:                   application/json
+addheader:                  X-Auth-Token: {USER_TOKEN}
+parseresponseFUN_ID:        "_id":"([^"]+)
+
+step:                       Add genre - {GENRE}
+varGENRE:                   Drama
+section:                    Path - POST genre
+url:                        {BASE}/api/genres
+postbody:                   { "name": "{GENRE}" }
+posttype:                   application/json
+addheader:                  X-Auth-Token: {USER_TOKEN}
+parseresponseFUN_ID:        "_id":"([^"]+)
+
+step:                       Add genre - {GENRE}
+varGENRE:                   Action
+section:                    Path - POST genre
+url:                        {BASE}/api/genres
+postbody:                   { "name": "{GENRE}" }
+posttype:                   application/json
+addheader:                  X-Auth-Token: {USER_TOKEN}
+parseresponseFUN_ID:        "_id":"([^"]+)
+
+step:                       Check genres exist
+url:                        {BASE}/api/genres
+verifypositive1:            Science Fiction
+verifypositive2:            Comedy
+verifypositive3:            Thriller
+verifypositive4:            Adventure
+verifypositive5:            Drama
+verifypositive6:            Action

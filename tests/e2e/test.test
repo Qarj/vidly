@@ -53,7 +53,7 @@ postbody:|:                 |{
     "isAdmin": "true"
 }|
 posttype:                   application/json
-parseresponseSTD_ID:        "_id":"([^"]+)
+parseresponseADM_ID:        "_id":"([^"]+)
 parseresponseADMIN_TOKEN:   X-Auth-Token: ([\w\.\-]+)
 verifypositive1:            _id
 verifypositive2:            X-Auth-Token: [\w\.\-]+
@@ -74,7 +74,7 @@ url:                {BASE}/api/users/me
 addheader:          X-Auth-Token: {ADMIN_TOKEN}
 verifypositive:     Mosh Hamedani
 
-step:                   Post a valid standard user - {ADMIN_USER}
+step:                   Post a valid standard user - {STD_USER}
 url:                    {BASE}/api/users
 postbody:|:             |{
     "name": "Standard User",

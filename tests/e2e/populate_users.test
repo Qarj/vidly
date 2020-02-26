@@ -1,0 +1,55 @@
+step:                       Set environment variables
+varBASE:                    https://dry-reaches-67963.herokuapp.com
+
+step:                       Set user names
+varADMIN_USER:              admin@domain.com
+varSTD_USER:                standard@domain.com
+
+
+#
+# Administrator
+#
+
+step:                       Post a valid admin user - {ADMIN_USER}
+section:                    Create an Administrator
+url:                        {BASE}/api/users
+postbody:|:                 |{
+    "name": "Administrator",
+    "email": "{ADMIN_USER}",
+    "password": "12345",
+    "isAdmin": "true"
+}|
+posttype:                   application/json
+parseresponseADM_ID:        "_id":"([^"]+)
+parseresponseADMIN_TOKEN:   X-Auth-Token: ([\w\.\-]+)
+verifypositive1:            _id
+verifypositive2:            X-Auth-Token: [\w\.\-]+
+
+step:                       See user info
+url:                        {BASE}/api/users/me
+addheader:                  X-Auth-Token: {ADMIN_TOKEN}
+verifypositive:             Administrator
+
+
+#
+# Standard User
+#
+
+step:                       Post a valid standard user - {STD_USER}
+section:                    Create a Standard User
+url:                        {BASE}/api/users
+postbody:|:             |{
+    "name": "Standard User",
+    "email": "{STD_USER}",
+    "password": "12345"
+}|
+posttype:                   application/json
+parseresponseSTD_ID:        "_id":"([^"]+)
+parseresponseSTD_TOKEN:     X-Auth-Token: ([\w\.\-]+)
+verifypositive1:            _id
+verifypositive2:            X-Auth-Token: [\w\.\-]+
+
+step:                       See user info
+url:                        {BASE}/api/users/me
+addheader:                  X-Auth-Token: {STD_TOKEN}
+verifypositive:             Standard User
